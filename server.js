@@ -52,4 +52,19 @@ server.post('/', (req, res) => {
     })
 })
 
+server.put('/:id', (req, res) => {
+  const { id } = req.params
+  const changes = req.body
+
+  db('accounts')
+    .where('id', id)
+    .update(changes)
+    .then(count => {
+      res.status(200).json({message: `updated ${count} records`})
+    })
+    .catch(err => {
+      res.status(err)
+    })
+})
+
 module.exports = server;
