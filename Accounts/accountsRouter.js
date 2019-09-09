@@ -67,7 +67,7 @@ router.get('/:id', (req, res) => {
     })
 })
 
-router.post('/', (req, res) => {
+router.post('/', validateAccountData, validateAccountNameIsUnique, validateBudgetIsNumeric, validateNameIsString, (req, res) => {
   const accountData = req.body
 
   db('accounts')
@@ -87,7 +87,7 @@ router.post('/', (req, res) => {
     })
 })
 
-router.put('/:id', (req, res) => {
+router.put('/:id', validateAccountData, validateAccountNameIsUnique, validateBudgetIsNumeric, validateNameIsString, (req, res) => {
   const { id } = req.params
   const changes = req.body
 
@@ -115,5 +115,61 @@ router.delete('/:id', (req, res) => {
       res.status(err)
     })
 })
+
+// custom middleware to validate account
+function validateAccountData(req, res, next) {
+  if (!req.body.name) {
+    res.status(400).json({
+      message: 'Invalid Account data, need name'
+    })
+  } else  if (!req.body.budget) {
+    res.status(400).json({
+      message: 'Invalid Account data, need budget'
+    })
+  } else {
+    next()
+  }
+}
+
+// custom middleware to validate account name is unique
+function validateAccountNameIsUnique(req, res, next) {
+  db('accounts')
+    .where('name', req.body.name)
+    .first()
+    .then(account => {
+      if (account.name === req.body.name) {
+        res.status(400).json({
+          message: 'Account name must be unique'
+        })
+      } else {
+        next()
+      }
+    })
+    .catch(err => {
+      next()
+    })
+}
+
+// custom middleware to validate budget is numeric
+function validateBudgetIsNumeric(req, res, next) {
+  if (typeof(req.body.budget) !== 'number') {
+    res.status(400).json({
+      message: 'Invalid Account data, budget must be numeric'
+    })
+  } else {
+    next()
+  }
+}
+
+// custom middleware to validate name is a string
+function validateNameIsString(req, res, next) {
+  if (typeof(req.body.name) !== 'string') {
+    res.status(400).json({
+      message: 'Invalid Account data, name must be a string'
+    })
+  } else {
+    next()
+  }
+}
 
 module.exports = router;
