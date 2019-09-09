@@ -67,39 +67,49 @@ router.get('/:id', (req, res) => {
     })
 })
 
-router.post('/', validateAccountData, validateAccountNameIsUnique, validateBudgetIsNumeric, validateNameIsString, (req, res) => {
-  const accountData = req.body
+router.post('/', 
+  validateAccountData, 
+  validateAccountNameIsUnique, 
+  validateBudgetIsNumeric, 
+  validateNameIsString, 
+  (req, res) => {
+    const accountData = req.body
 
-  db('accounts')
-    .insert(accountData, 'id')
-    .then(([id]) => {
-      db('accounts')
-      .where({ id })
-      .first()
-      .then(account => {
-        res.status(200).json(account)
+    db('accounts')
+      .insert(accountData, 'id')
+      .then(([id]) => {
+        db('accounts')
+        .where({ id })
+        .first()
+        .then(account => {
+          res.status(200).json(account)
+        })
+        .catch(err => {
+          res.status(404).json(err)
+        })
+      }).catch(err => {
+        res.json(err)
       })
-      .catch(err => {
-        res.status(404).json(err)
-      })
-    }).catch(err => {
-      res.json(err)
-    })
 })
 
-router.put('/:id', validateAccountData, validateAccountNameIsUnique, validateBudgetIsNumeric, validateNameIsString, (req, res) => {
-  const { id } = req.params
-  const changes = req.body
+router.put('/:id', 
+  validateAccountData, 
+  validateAccountNameIsUnique, 
+  validateBudgetIsNumeric, 
+  validateNameIsString, 
+  (req, res) => {
+    const { id } = req.params
+    const changes = req.body
 
-  db('accounts')
-    .where('id', id)
-    .update(changes)
-    .then(count => {
-      res.status(200).json({message: `updated ${count} records`})
-    })
-    .catch(err => {
-      res.status(err)
-    })
+    db('accounts')
+      .where('id', id)
+      .update(changes)
+      .then(count => {
+        res.status(200).json({message: `updated ${count} records`})
+      })
+      .catch(err => {
+        res.status(err)
+      })
 })
 
 router.delete('/:id', (req, res) => {
