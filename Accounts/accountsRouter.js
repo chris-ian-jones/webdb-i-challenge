@@ -5,14 +5,51 @@ const db = require('./../data/dbConfig');
 const router = express();
 
 router.get('/', (req, res) => {
-  db.select('*')
-    .from('accounts')
-    .then(accounts => {
-      res.status(200).json(accounts)
-    })
-    .catch(err => {
-      res.json(err)
-    })
+  let limit = req.query.limit
+  let sortby = req.query.sortby
+  let sortdir = req.query.sortdir
+
+  if (limit && sortby && sortdir){
+    db.select('*')
+      .from('accounts')
+      .limit(limit)
+      .orderBy(sortby, sortdir)
+      .then(accounts => {
+        res.status(200).json(accounts)
+      })
+      .catch(err => {
+        res.json(err)
+      })
+  } else if (sortby && sortdir){
+    db.select('*')
+      .from('accounts')
+      .orderBy(sortby, sortdir)
+      .then(accounts => {
+        res.status(200).json(accounts)
+      })
+      .catch(err => {
+        res.json(err)
+      })
+  } else if (limit) {
+    db.select('*')
+      .from('accounts')
+      .limit(limit)
+      .then(accounts => {
+        res.status(200).json(accounts)
+      })
+      .catch(err => {
+        res.json(err)
+      })
+  } else {
+    db.select('*')
+      .from('accounts')
+      .then(accounts => {
+        res.status(200).json(accounts)
+      })
+      .catch(err => {
+        res.json(err)
+      })
+  }
 })
 
 router.get('/:id', (req, res) => {
